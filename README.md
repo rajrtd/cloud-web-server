@@ -10,7 +10,7 @@ For this project I was tasked with creating a web server on the cloud. The serve
 
 ## Design
 
-I altered the architecture to avoid using some of the AWS services that incur costs. However, I was able to use an environment that paid for the costs, so some of my services do incur a cost.
+I altered the architecture to avoid using some of the AWS services that incur costs. However, I was able to use a sandbox environment that paid for the costs, so some of my services do incur a cost.
 
 #### First Iteration:
 
@@ -31,9 +31,11 @@ I've also removed
 
 #### Fourth Iteration:
 
-The inbound ports that should be kept open are 443, 80, 3000 in SG 1
+The inbound ports that should be kept open are 443, 80, 3000 in SG 1. These ports in theory should be all that is required to start the server. However to test if the application runs, I would place the EC2 instance in a public subnet in SG 1 and have found that even with those ports open for inbound and outbound traffic, the application is unable to run. However, it does work when all inbound and outbound ports run. The error I am given is: 
 
-I intended on using the internet gateway instead of the transit gateway.
+`Cannot initiate the connection to ap-southeast-2.ec2.archive.ubuntu.com:80` 
+
+I assume that the error is due to an Ubuntu port being blocked, and my ephemeral ports need to be opened between ports 32768 and 61000.
 
 ### Subnetting
 
@@ -77,7 +79,17 @@ Security Group 3 (Databases) = <strong>192.168.128.0/18</strong>
 - Create an application load balancer that can switch between instances depending on the health status of the instances as well as work with the auto-scaling group.
 - Create EC2 instances that can switch to the secondary database given that the primary is unhealthy.
 
+## What I Have Achieved
+
+I can successfully launch my test instance which is placed in a public subnet and access the web page.
+
+Image for reference: 
+![Alt text](image.png)
+
+The webpage on launch will display "Hello World!", however I cannot launch the project without exceeding the budget of the sandbox environment.
+
 ## Challenges:
+
 My original goal was to test my user data scripts, I had a routing issue, checked all my routing configurations, confident it’s all fixed, currently facing a 502 bad gateway error. Did some research and found that the error is probably with my application load balancer, certain the configuration is correct, but I’m trying to currently attach an S3 bucket to the load balancer so I can check the CloudWatch logs to see what the error is, but I’m having difficulty with that because the bucket is not being made, and I think it might be a policy issue.
 If I’m unable to solve this problem for now, I’ll move onto setting up the primary and secondary databases.
 Fixed S3 bucket issue to the ALB’s access and connection logs, now I just need to decipher them.
@@ -88,14 +100,14 @@ Issues with the user data script, some commands had to be altered, was using
 
 Biggest problems:
 
-- Bad gateway (found out need a health check)
+- 502 Bad gateway (found out need a health check)
 - User data scripts
-- Couldn’t clone repo properly
-- Incorrect dependencies
-- Incorrect versioning
-- Went back and forth, trying it on Amazon Linux 2 and Ubuntu-22.04
-- Security group port, I think for Ubuntu	
+    - Couldn’t clone repository
+    - Incorrect dependencies
+    - Incorrect versioning
+    - Went back and forth, trying it on Amazon Linux 2 and Ubuntu-22.04
+- Security group port, I think for Ubuntu or ephemeral ports being blocked	
 
 ## Limitations
 
-The monthly costs of the 
+The monthly costs of the sandbox environment.

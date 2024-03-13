@@ -25,93 +25,93 @@ resource "aws_security_group" "security_group_1" {
   # try port 8080
 
   # # for testing
+  ingress {
+    description = "everything"
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    description = "everything"
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   # ingress {
-  #   description = "everything"
-  #   from_port = 0
-  #   to_port = 0
-  #   protocol = "-1"
+  #   description = "Ruby on Rails"
+  #   from_port   = 3000
+  #   to_port     = 3000
+  #   protocol    = "tcp"
+  #   cidr_blocks = ["0.0.0.0/0"]
+  # }
+  
+  # ingress {
+  #   description = "Web Server"
+  #   from_port = 8080
+  #   to_port = 8080
+  #   protocol = "tcp"
+  #   cidr_blocks = ["0.0.0.0/0"]
+  # }
+
+  # ingress {
+  #   description = "SSH"
+  #   from_port = 22
+  #   to_port = 22
+  #   protocol = "tcp"
+  #   cidr_blocks = ["0.0.0.0/0"]
+  # }
+
+  # ingress {
+  #   description = "HTTP"
+  #   from_port   = 80
+  #   to_port     = 80
+  #   protocol    = "tcp"
+  #   cidr_blocks = ["0.0.0.0/0"]
+  # }
+
+  # ingress {
+  #   description = "HTTPS"
+  #   from_port   = 443
+  #   to_port     = 443
+  #   protocol    = "tcp"
   #   cidr_blocks = ["0.0.0.0/0"]
   # }
 
   # egress {
-  #   description = "everything"
-  #   from_port = 0
-  #   to_port = 0
-  #   protocol = "-1"
+  #   description = "HTTP"
+  #   from_port   = 0
+  #   to_port     = 0
+  #   protocol    = "-1"
   #   cidr_blocks = ["0.0.0.0/0", var.security_group_prefix[1].cidr_block]
   # }
 
-  ingress {
-    description = "Ruby on Rails"
-    from_port   = 3000
-    to_port     = 3000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  
-  ingress {
-    description = "Web Server"
-    from_port = 8080
-    to_port = 8080
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  # egress {
+  #   description = "HTTPS"
+  #   from_port   = 443
+  #   to_port     = 443
+  #   protocol    = "tcp"
+  #   cidr_blocks = [var.security_group_prefix[1].cidr_block]
+  # }
 
-  ingress {
-    description = "SSH"
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  # egress {
+  #   description = "Ruby on Rails"
+  #   from_port   = 3000
+  #   to_port     = 3000
+  #   protocol    = "tcp"
+  #   cidr_blocks = [var.security_group_prefix[1].cidr_block]
+  # }
 
-  ingress {
-    description = "HTTP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "HTTPS"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    description = "HTTP"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0", var.security_group_prefix[1].cidr_block]
-  }
-
-  egress {
-    description = "HTTPS"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [var.security_group_prefix[1].cidr_block]
-  }
-
-  egress {
-    description = "Ruby on Rails"
-    from_port   = 3000
-    to_port     = 3000
-    protocol    = "tcp"
-    cidr_blocks = [var.security_group_prefix[1].cidr_block]
-  }
-
-  egress {
-    description = "Web Server"
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = [var.security_group_prefix[1].cidr_block]
-  }
+  # egress {
+  #   description = "Web Server"
+  #   from_port   = 8080
+  #   to_port     = 8080
+  #   protocol    = "tcp"
+  #   cidr_blocks = [var.security_group_prefix[1].cidr_block]
+  # }
 }
 
 resource "aws_security_group" "security_group_2" {
