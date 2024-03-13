@@ -35,7 +35,7 @@ I've also removed ports 443 and 80 as inbound and outbound in security group 1 a
 
 The inbound ports that should be kept open are 443, 80, 3000 in SG 1. These ports in theory should be all that is required to start the server. However to test if the application runs, I would place the EC2 instance in a public subnet in SG 1 and have found that with those ports open for inbound and outbound traffic, the application is still unable to run. However, it does work when all inbound and outbound ports run. The error I am given is: 
 
-`Cannot initiate the connection to ap-southeast-2.ec2.archive.ubuntu.com:80` 
+``Cannot initiate the connection to ap-southeast-2.ec2.archive.ubuntu.com:80`` 
 
 I assume that the error is due to an Ubuntu port being blocked, and my ephemeral ports need to be opened between ports 32768 and 61000.
 
