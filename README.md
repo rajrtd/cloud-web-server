@@ -2,7 +2,7 @@
 ### Creating a Ruby on Rails web server in the cloud with AWS and Terraform.
 
 ## Task
-For this project I was tasked with creating a web server on the cloud. The server will be using Ruby on Rails to display a "Hello World" in a header. The cloud architecture for this project needed to roughly comply with this diagram (The services on the left of the architecture were optional services we could include):
+For this project I was tasked with creating a web server on the cloud. The server will be using Ruby on Rails to display a "Hello World!" message in a header. The cloud architecture for this project needed to roughly comply with this diagram (The services on the left of the architecture were optional services we could include):
 
 ![Original Diagram](images/original-diagram.png)
 
@@ -10,7 +10,7 @@ For this project I was tasked with creating a web server on the cloud. The serve
 
 ## Design
 
-I altered the architecture to avoid using some of the AWS services that incur costs. However, I was able to use a sandbox environment that paid for the costs, so some of my services do incur a cost.
+I altered the architecture to avoid using some of the AWS services that incur costs because I originally tried using free-tier services. However, I was able to use a sandbox environment that paid for the costs of services, so some of my services do incur a cost.
 
 #### First Iteration:
 
@@ -27,11 +27,13 @@ The design changes I made to this iteration was to put the EC2 instances into pr
 
 In this iteration I've included an extra route table for each instance in each private subnet to route them to the NAT Gateways in public subnet 1 and 2, as it is not a multi-az service.
 
-I've also removed 
+I've also removed ports 443 and 80 as inbound and outbound in security group 1 and inbound in security group 2.
 
 #### Fourth Iteration:
 
-The inbound ports that should be kept open are 443, 80, 3000 in SG 1. These ports in theory should be all that is required to start the server. However to test if the application runs, I would place the EC2 instance in a public subnet in SG 1 and have found that even with those ports open for inbound and outbound traffic, the application is unable to run. However, it does work when all inbound and outbound ports run. The error I am given is: 
+<!-- (add image of fourth iteration) -->
+
+The inbound ports that should be kept open are 443, 80, 3000 in SG 1. These ports in theory should be all that is required to start the server. However to test if the application runs, I would place the EC2 instance in a public subnet in SG 1 and have found that with those ports open for inbound and outbound traffic, the application is still unable to run. However, it does work when all inbound and outbound ports run. The error I am given is: 
 
 `Cannot initiate the connection to ap-southeast-2.ec2.archive.ubuntu.com:80` 
 
@@ -90,23 +92,18 @@ The webpage on launch will display "Hello World!", however I cannot launch the p
 
 ## Challenges:
 
-My original goal was to test my user data scripts, I had a routing issue, checked all my routing configurations, confident it’s all fixed, currently facing a 502 bad gateway error. Did some research and found that the error is probably with my application load balancer, certain the configuration is correct, but I’m trying to currently attach an S3 bucket to the load balancer so I can check the CloudWatch logs to see what the error is, but I’m having difficulty with that because the bucket is not being made, and I think it might be a policy issue.
-If I’m unable to solve this problem for now, I’ll move onto setting up the primary and secondary databases.
-Fixed S3 bucket issue to the ALB’s access and connection logs, now I just need to decipher them.
-
-Going to try and figure out why my instance is supposedly unhealthy
-Logs show that it is forwarding to the correct port and ip address.
-Issues with the user data script, some commands had to be altered, was using 
-
-Biggest problems:
-
-- 502 Bad gateway (found out need a health check)
+- Logging access and connection logs into S3 bucket
+- 502 Bad gateway (Unhealthy instance issue)
 - User data scripts
     - Couldn’t clone repository
     - Incorrect dependencies
     - Incorrect versioning
-    - Went back and forth, trying it on Amazon Linux 2 and Ubuntu-22.04
-- Security group port, I think for Ubuntu or ephemeral ports being blocked	
+    - Went back and forth, trying it on Amazon Linux 2 and Ubuntu-22.04.
+- Security group port, I think for Ubuntu or ephemeral ports being blocked.	
+
+I had an issue where my application load balancer was not logging my access and connection logs due to a permission issue with the bucket that was resolved following this link:
+[Enable Logging](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/enable-access-logging.html)
+
 
 ## Limitations
 
