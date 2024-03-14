@@ -90,7 +90,7 @@ Image for reference:
 
 The webpage on launch will display "Hello World!", however I cannot launch the project without exceeding the budget of the sandbox environment.
 
-## What was not achiieved & why
+## What was not achieved & why
 
 auto scaling groups, I set out to test the user data script on a single instance before an auto scaling group was made, the time spent creating a user data script was 
 
