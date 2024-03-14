@@ -14,16 +14,16 @@ I altered the architecture to avoid using some of the AWS services that incur co
 
 #### First Iteration:
 
-![First Iteration](images/diagram-v1.png)
+![Diagram V1](images/diagram-v1.png)
 
 #### Second Iteration:
 
-![Alt text](images/diagram-v2.png)
+![Diagram V2](images/diagram-v2.png)
 
 The design changes I made to this iteration was to put the EC2 instances into private subnets instead of public, as this would be better security practice.
 
 #### Third Iteration:
-![Alt text](images/diagram-v3.png)
+![Diagram V3](images/diagram-v3.png)
 
 In this iteration I've included an extra route table for each instance in each private subnet to route them to the NAT Gateways in public subnet 1 and 2, as it is not a multi-az service.
 
@@ -81,14 +81,18 @@ Security Group 3 (Databases) = <strong>192.168.128.0/18</strong>
 - Create an application load balancer that can switch between instances depending on the health status of the instances as well as work with the auto-scaling group.
 - Create EC2 instances that can switch to the secondary database given that the primary is unhealthy.
 
-## What I Have Achieved
+## What I have achieved
 
 I can successfully launch my test instance which is placed in a public subnet and access the web page.
 
 Image for reference: 
-![Alt text](image.png)
+![Reference Image](images/reference.png)
 
 The webpage on launch will display "Hello World!", however I cannot launch the project without exceeding the budget of the sandbox environment.
+
+## What was not achiieved & why
+
+auto scaling groups, I set out to test the user data script on a single instance before an auto scaling group was made, the time spent creating a user data script was 
 
 ## Challenges:
 
