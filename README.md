@@ -6,6 +6,8 @@ For this project I was tasked with creating a web server on the cloud. The serve
 
 ![Original Diagram](images/original-diagram.png)
 
+This is the [Ruby On Rails Project](https://github.com/rajrtd/ror-project) that will be launched in the cloud architecture.
+
 <strong>Note:</strong> The primary and secondary databases in this project are redundant. They are there just to show my technical ability in setting up the servers. The secondary database is a read-only replica.
 
 ## Design
