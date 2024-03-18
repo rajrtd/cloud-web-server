@@ -15,7 +15,7 @@ rvm install ruby-3.3.0
 rvm use ruby-3.3.0 --default
 gem install rails
 mkdir ror-project
-sudo git clone https://rajrtd:<fine grain token>@github.com/rajrtd/ror-project.git /home/ubuntu/ror-project
+sudo git clone https://github.com/rajrtd/ror-project.git /home/ubuntu/ror-project
 sudo chown -R ubuntu:ubuntu /home/ubuntu/ror-project/
 cd /home/ubuntu/ror-project
 bundle install
