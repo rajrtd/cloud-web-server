@@ -124,4 +124,4 @@ The webpage on launch will display "Hello World!", however I cannot launch the p
 
 ## Limitations
 
-The monthly costs of the sandbox environment.
+The monthly budget of the sandbox environment.
