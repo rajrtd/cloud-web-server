@@ -121,7 +121,6 @@ The webpage on launch will display "Hello World!", however I cannot launch the p
     - I found that when I would install ruby and rails on my Ubuntu EC2 instance, I still could not generate an app because there were many missing dependencies. The error outputted by rails did not show all the dependencies. So I tried with Amazon Linux 2 instead, as this is how the project was completed by another colleague, however I faced the same issue. I decided to use Ubuntu-22.04 because I thought that since it is a more popular OS, it would have more resources for support to find on the internet. Which it did, and was the OS I ended up using for my EC2 instance.
   - Incorrect versioning
     - To not launch my entire VPC, I tested installing the necessary dependencies for ruby on rails in WSL. I created an ruby on rails application in WSL, uploaded it to a github repository, and attempted to clone this repository in the EC2 instance to launch the project. However, what I found was the versions that were available to me in WSL, could not be installed in the EC2 instance. To fix this, I instead made the application within my EC2 instance and then uploaded it to a GitHub repo, so on launch it could just clone that repository and start the web server.
-- Security group port, I think for Ubuntu or ephemeral ports being blocked.
 
 ## Limitations
 

@@ -1,4 +1,4 @@
-# Create VPC
+# VPC
 resource "aws_vpc" "cloud_web_server" {
   cidr_block = var.cidr_block
 
@@ -7,7 +7,7 @@ resource "aws_vpc" "cloud_web_server" {
   }
 }
 
-# Create internet gateway
+# Internet Gateway
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.cloud_web_server.id
 
@@ -16,15 +16,11 @@ resource "aws_internet_gateway" "igw" {
   }
 }
 
-# Create security groups
+# Security group 1, first security group for traffic incoming from the internet
 resource "aws_security_group" "security_group_1" {
   name   = var.security_group_prefix[0].name
   vpc_id = aws_vpc.cloud_web_server.id
 
-  # app works when EC2 instance is in public subnet and ingress and egress for everything is open
-  # try port 8080
-
-  # # for testing
   ingress {
     description = "everything"
     from_port = 0
@@ -40,105 +36,13 @@ resource "aws_security_group" "security_group_1" {
     protocol = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-  # ingress {
-  #   description = "Ruby on Rails"
-  #   from_port   = 3000
-  #   to_port     = 3000
-  #   protocol    = "tcp"
-  #   cidr_blocks = ["0.0.0.0/0"]
-  # }
-  
-  # ingress {
-  #   description = "Web Server"
-  #   from_port = 8080
-  #   to_port = 8080
-  #   protocol = "tcp"
-  #   cidr_blocks = ["0.0.0.0/0"]
-  # }
-
-  # ingress {
-  #   description = "SSH"
-  #   from_port = 22
-  #   to_port = 22
-  #   protocol = "tcp"
-  #   cidr_blocks = ["0.0.0.0/0"]
-  # }
-
-  # ingress {
-  #   description = "HTTP"
-  #   from_port   = 80
-  #   to_port     = 80
-  #   protocol    = "tcp"
-  #   cidr_blocks = ["0.0.0.0/0"]
-  # }
-
-  # ingress {
-  #   description = "HTTPS"
-  #   from_port   = 443
-  #   to_port     = 443
-  #   protocol    = "tcp"
-  #   cidr_blocks = ["0.0.0.0/0"]
-  # }
-
-  # egress {
-  #   description = "HTTP"
-  #   from_port   = 0
-  #   to_port     = 0
-  #   protocol    = "-1"
-  #   cidr_blocks = ["0.0.0.0/0", var.security_group_prefix[1].cidr_block]
-  # }
-
-  # egress {
-  #   description = "HTTPS"
-  #   from_port   = 443
-  #   to_port     = 443
-  #   protocol    = "tcp"
-  #   cidr_blocks = [var.security_group_prefix[1].cidr_block]
-  # }
-
-  # egress {
-  #   description = "Ruby on Rails"
-  #   from_port   = 3000
-  #   to_port     = 3000
-  #   protocol    = "tcp"
-  #   cidr_blocks = [var.security_group_prefix[1].cidr_block]
-  # }
-
-  # egress {
-  #   description = "Web Server"
-  #   from_port   = 8080
-  #   to_port     = 8080
-  #   protocol    = "tcp"
-  #   cidr_blocks = [var.security_group_prefix[1].cidr_block]
-  # }
 }
 
+# Security group 2, for inbound traffic from security group 1
+# For the EC2 instances/auto-scaling group
 resource "aws_security_group" "security_group_2" {
   name   = var.security_group_prefix[1].name
   vpc_id = aws_vpc.cloud_web_server.id
-
-  # ingress {
-  #   from_port = 0
-  #   to_port = 0
-  #   protocol = "-1"
-  #   cidr_blocks = [var.security_group_prefix[0].cidr_block]
-  # }
-
-  # egress {
-  #   from_port = 0
-  #   to_port = 0
-  #   protocol = "-1"
-  #   cidr_blocks = [var.security_group_prefix[1].cidr_block]
-  # }
-
-  ingress {
-    description = "Web Server"
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = [var.security_group_prefix[0].cidr_block]
-  }
 
   ingress {
     description = "Ruby on Rails"
@@ -173,6 +77,7 @@ resource "aws_security_group" "security_group_2" {
   }
 }
 
+# Security group 3, subnet for inbound database requests from the EC2 instances
 resource "aws_security_group" "security_group_3" {
   name   = var.security_group_prefix[2].name
   vpc_id = aws_vpc.cloud_web_server.id
@@ -202,32 +107,31 @@ resource "aws_security_group" "security_group_3" {
   }
 }
 
-# Create subnets
-
+# Public Subnet 1 for ALB and NAT gateway 1
 resource "aws_subnet" "public_subnet_1" {
   vpc_id                  = aws_vpc.cloud_web_server.id
   cidr_block              = var.public_subnet_prefix[0].cidr_block
   availability_zone       = var.availability_zones[0]
-  map_public_ip_on_launch = true # public subnet
+  map_public_ip_on_launch = true # Launches subnet as public
 
   tags = {
     Name = var.public_subnet_prefix[0].name
   }
 }
 
-# Don't deploy AZ 2 subnets yet, test on AZ 1 first
-
+# Public Subnet 2 for ALB and NAT gateway 2
 resource "aws_subnet" "public_subnet_2" {
   vpc_id                  = aws_vpc.cloud_web_server.id
   cidr_block              = var.public_subnet_prefix[1].cidr_block
   availability_zone       = var.availability_zones[1]
-  map_public_ip_on_launch = true # public subnet
+  map_public_ip_on_launch = true # Launches subnet as public 
 
   tags = {
     Name = var.public_subnet_prefix[1].name
   }
 }
 
+# Subnet for EC2 instances and auto-scaling group
 resource "aws_subnet" "private_subnet_1" {
   vpc_id            = aws_vpc.cloud_web_server.id
   cidr_block        = var.private_subnet_prefix[0].cidr_block
@@ -238,8 +142,7 @@ resource "aws_subnet" "private_subnet_1" {
   }
 }
 
-# Don't deploy this subnet, test on AZ 1 first
-
+# Subnet for EC2 instances and auto-scaling group
 resource "aws_subnet" "private_subnet_2" {
   vpc_id            = aws_vpc.cloud_web_server.id
   cidr_block        = var.private_subnet_prefix[1].cidr_block
@@ -250,6 +153,7 @@ resource "aws_subnet" "private_subnet_2" {
   }
 }
 
+# Subnet for primary Amazon RDS database
 resource "aws_subnet" "private_subnet_3" {
   vpc_id            = aws_vpc.cloud_web_server.id
   cidr_block        = var.private_subnet_prefix[2].cidr_block
@@ -260,6 +164,7 @@ resource "aws_subnet" "private_subnet_3" {
   }
 }
 
+# Subnet for secondary Amazon RDS database
 resource "aws_subnet" "private_subnet_4" {
   vpc_id            = aws_vpc.cloud_web_server.id
   cidr_block        = var.private_subnet_prefix[3].cidr_block
@@ -270,16 +175,9 @@ resource "aws_subnet" "private_subnet_4" {
   }
 }
 
-/**
-* The following block of code is creating connection between the IGW and ALB, as well as routing it
-*
-*
-  *****/
-####################################################################################################################################
-
 resource "aws_lb" "my_alb" {
   name               = "my-alb"
-  internal           = false # means it's internet facing and not a private alb
+  internal           = false # Makes the load balancer internet facing and not private.
   load_balancer_type = "application"
   subnets            = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
   security_groups    = [aws_security_group.security_group_1.id]
@@ -298,9 +196,10 @@ resource "aws_lb" "my_alb" {
   }
 }
 
+# Directs incoming traffic on port 80 to the load balancer's target group
 resource "aws_alb_listener" "alb_listener" {
   load_balancer_arn = aws_lb.my_alb.arn
-  port              = 80 # maybe change to 80?
+  port              = 80
   protocol          = "HTTP"
 
   default_action {
@@ -309,6 +208,7 @@ resource "aws_alb_listener" "alb_listener" {
   }
 }
 
+# Target group completes health check
 resource "aws_lb_target_group" "alb_target_group" {
   name        = "alb-target-group"
   port        = 3000
@@ -316,15 +216,8 @@ resource "aws_lb_target_group" "alb_target_group" {
   target_type = "instance"
   vpc_id      = aws_vpc.cloud_web_server.id
 
-  # route for lb to query app, and query every interval that's set.
-  # specify path on RoR app side, allows lb to connect to app and that it's running ok
-  # healthy threshold means testing app twice - passes twice = healthy, same with unhealthy threshold
-  # with lb, if any instance 
-  # how to configure health checks for apache for the load balancer
-  # specify a domain e.g. health check path as health_check/
-  # configure RoR for health_checks - user_data script installs RoR = looks into github repo to clone, then config RoR
   health_check {
-    path                = "/up" # Path for the health check endpoint, add this in RoR app
+    path                = "/up" # Path for the health check endpoint
     protocol            = "HTTP"
     port                = 3000
     interval            = 30  # Health check interval in seconds
@@ -335,12 +228,14 @@ resource "aws_lb_target_group" "alb_target_group" {
   }
 }
 
+# Directs incoming traffic from the listener to the instance
 resource "aws_lb_target_group_attachment" "target_group_attachment" {
   target_group_arn = aws_lb_target_group.alb_target_group.arn
   target_id        = aws_instance.web_server_1.id
   port             = 3000
 }
 
+# Route table for public subnet 1 and public subnet 2
 resource "aws_route_table" "route_table_1" {
   vpc_id = aws_vpc.cloud_web_server.id
 
@@ -368,12 +263,6 @@ resource "aws_route_table_association" "assoc_pubsub_2" {
   subnet_id      = aws_subnet.public_subnet_2.id
   route_table_id = aws_route_table.route_table_1.id
 }
-
-####################################################################################################################################
-
-/**
-* The following block of code assigns a nat gateway
-  **/
 
 resource "aws_nat_gateway" "ngw_1" {
   allocation_id = aws_eip.ngw_1_eip.id
@@ -403,6 +292,7 @@ resource "aws_eip" "ngw_2_eip" {
   depends_on = [aws_internet_gateway.igw]
 }
 
+# Route table for private subnet 1 and private subnet 3
 resource "aws_route_table" "route_table_2" {
   vpc_id = aws_vpc.cloud_web_server.id
 
@@ -421,6 +311,7 @@ resource "aws_route_table" "route_table_2" {
   }
 }
 
+# Route table for private subnet 2 and private subnet 4
 resource "aws_route_table" "route_table_3" {
   vpc_id = aws_vpc.cloud_web_server.id
 
@@ -463,10 +354,6 @@ resource "aws_route_table_association" "assoc_privsub_4" {
   route_table_id = aws_route_table.route_table_3.id
 }
 
-####################################################################################################################################
-
-# add an elastic ip address - needed for failover of instances - assign to instances
-# key pair
 resource "aws_key_pair" "main_key" {
   key_name   = "main_key"
   public_key = file("~/.ssh/main_key.pub")
@@ -476,8 +363,8 @@ resource "aws_instance" "web_server_1" {
   instance_type          = "t2.micro"
   ami                    = data.aws_ami.server_ami.id
   key_name               = aws_key_pair.main_key.id
-  vpc_security_group_ids = [aws_security_group.security_group_2.id] # connects EC2 to SG
-  subnet_id              = aws_subnet.private_subnet_1.id           # connects EC2 to subnet
+  vpc_security_group_ids = [aws_security_group.security_group_2.id] 
+  subnet_id              = aws_subnet.private_subnet_1.id           
   user_data              = file("ubuntuscript.tpl")
 
   root_block_device {
@@ -505,37 +392,3 @@ resource "aws_instance" "test_instance" {
     Name = "test_instance"
   }
 }
-
-
-# for an auto-scaling group you don't directly make an instance, so don't worry about it just yet
-
-# Create a MySQL Amazon RDS primary database
-
-# resource "aws_db_instance" "primary_db" {
-#   engine = "oracle"
-#   username             = var.primary_db_username
-#   password             = var.primary_db_password
-# }
-
-# resource "aws_db_subnet_group" "primary_in_subnet3" {
-#   main = "primary_subnet_group"
-#   subnet_ids = [aws_subnet.private_subnet_3.id]
-
-#   tags = {
-#     Name = "primary_subnet_group"
-#   }
-# } 
-# # Create a MySQL Amazon RDS secondary database (read-only)
-
-# resource "aws_db_instance" "secondary_db" {
-#   allocated_storage    = 10
-#   db_name              = "secondary_db"
-#   engine               = "mysql"
-#   engine_version       = "5.7"
-#   instance_class       = "db.t3.micro"
-#   db_subnet_group_name = primary_in_subnet3.name
-#   username             = var.secondary_db_username
-#   password             = var.secondary_db_password
-#   parameter_group_name = "default.mysql5.7"
-#   skip_final_snapshot  = true
-# }
